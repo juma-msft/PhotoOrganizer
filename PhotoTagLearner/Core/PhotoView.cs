@@ -8,6 +8,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.Foundation;
 
 namespace PhotoTagLearner.Core
 {
@@ -16,7 +17,6 @@ namespace PhotoTagLearner.Core
         public PhotoView()
         {
             this.DefaultStyleKey = typeof(PhotoView);
-            this.photoStore.SourcePopulationComplete += OnPhotoStoreSourcePopulateComplete;
         }
 
         #region Dependency Properties
@@ -98,11 +98,38 @@ namespace PhotoTagLearner.Core
             return new string[] { BuiltInPhotoItemSource.PictureLibrary };
         }
 
-        #endregion
+        public IPhotoStore PhotoStore
+        {
+            get
+            {
+                return (IPhotoStore)GetValue(PhotoStoreProperty);
+            }
+            set
+            {
+                SetValue(PhotoStoreProperty, value);
+            }
+        }
+
+        private static void OnPhotoStoreChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            PhotoView pv = d as PhotoView;
+            if ((pv != null) && (e.OldValue != e.NewValue) && (e.NewValue != null))
+            {
+                var photoStore = e.NewValue as IPhotoStore;
+                pv.displayView.PhotoStore = photoStore;
+                photoStore.SourcePopulationComplete += pv.OnPhotoStoreSourcePopulateComplete;
+            }
+        }
+
+        public static readonly DependencyProperty PhotoStoreProperty = DependencyProperty.Register("PhotoStore", typeof(DataTemplateSelector),
+            typeof(PhotoViewDisplay), new PropertyMetadata(DefaultPhotoStore.Instance, OnPhotoStoreChanged));
+
+        #endregion 
 
         protected override void OnApplyTemplate()
         {
             var styleSelector = this.ControlStyleSelector;
+            var photoStore = this.PhotoStore;
             container = GetTemplateChild("PART_PhotoViewContainer") as FrameworkElement;
             container.Style = styleSelector.SelectStyle(container, this);
 
@@ -112,27 +139,31 @@ namespace PhotoTagLearner.Core
             displayView = GetTemplateChild("PART_PhotoViewDisplay") as PhotoViewDisplay;
             displayView.Style = styleSelector.SelectStyle(displayView, this);
 
+            var sources = this.PhotoItemSources as IEnumerable<string>;
+            photoStore.SourcePopulationComplete += OnPhotoStoreSourcePopulateComplete;
+            photoStore.StartPopulation(sources);
+
             base.OnApplyTemplate();
         }
 
-        private void InitializeViewer(ListViewBase view)
+        protected override Size MeasureOverride(Size availableSize)
         {
-            var sources = this.PhotoItemSources as IEnumerable<string>;
-            this.photoStore.StartPopulation(sources);
+            var result = base.MeasureOverride(availableSize);
+            return result;
         }
 
-        private void OnPhotoStoreSourcePopulateComplete(PhotoStore sender, string args)
+        private void OnPhotoStoreSourcePopulateComplete(IPhotoStore sender, string args)
         {
             // The dispatch call is purposefully not awaited.
 
 #pragma warning disable CS4014
             Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
+                displayView.SetFirstTag();
             });
 #pragma warning restore CS4014
         }
 
-        private PhotoStore photoStore = new PhotoStore();
         private FrameworkElement container;
         private ListViewBase sourceList;
         private PhotoViewDisplay displayView;

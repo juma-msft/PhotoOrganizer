@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -102,6 +103,21 @@ namespace PhotoTagLearner.Core
         public static readonly DependencyProperty ControlDataTemplateSelectorProperty = DependencyProperty.Register("ControlDataTemplateSelector", typeof(DataTemplateSelector),
             typeof(PhotoViewDisplay), new PropertyMetadata(DefaultPhotoItemTemplateSelector.Instance, new PropertyChangedCallback(OnControlDataTemplateSelectorChanged)));
 
+        public IPhotoStore PhotoStore
+        {
+            get
+            {
+                return (IPhotoStore)GetValue(PhotoStoreProperty);
+            }
+            set
+            {
+                SetValue(PhotoStoreProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty PhotoStoreProperty = DependencyProperty.Register("PhotoStore", typeof(DataTemplateSelector),
+            typeof(PhotoViewDisplay), new PropertyMetadata(DefaultPhotoStore.Instance, null));
+
         #endregion
 
         protected override void OnApplyTemplate()
@@ -111,18 +127,48 @@ namespace PhotoTagLearner.Core
 
             tagList = GetTemplateChild("PART_TagList") as ListViewBase;
             tagList.Style = styleSelector.SelectStyle(tagList, this);
+            tagList.ItemsSource = tagListSource;
             tagList.ItemTemplateSelector = dataTemplateSelector;
             tagList.ItemContainerStyleSelector = styleSelector;
 
             displayView = GetTemplateChild("PART_PhotoView") as ListViewBase;
-            displayView.ItemsSource = this.photos;
+            displayView.Style = styleSelector.SelectStyle(displayView, this);
+            displayView.ItemsSource = displayItemSource;
             displayView.ItemTemplateSelector = dataTemplateSelector;
             displayView.ItemContainerStyleSelector = styleSelector;
 
             base.OnApplyTemplate();
         }
 
-        private List<PhotoItem> photos = new List<PhotoItem>();
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            var result = base.MeasureOverride(availableSize);
+            return result;
+        }
+
+        public void SetFirstTag()
+        {
+            var photoStore = this.PhotoStore;
+
+            tagListSource.Clear();
+            tagListSource.AddRange(photoStore.GetAvailableTags(null));
+            var selectedTag = tagListSource.First();
+            displayItemSource.Clear();
+            displayItemSource.AddRange(photoStore.GetItems(selectedTag));
+
+            if (!tagListSource.Any())
+            {
+                throw new IndexOutOfRangeException("No Tags");
+            }
+
+
+            tagList.ItemsSource = tagListSource;
+            displayView.ItemsSource = displayItemSource;
+            tagList.SelectedItem = selectedTag;
+        }
+
+        private List<string> tagListSource = new List<string>();
+        private List<PhotoItem> displayItemSource = new List<PhotoItem>();
         private ListViewBase tagList;
         private ListViewBase displayView;
     }

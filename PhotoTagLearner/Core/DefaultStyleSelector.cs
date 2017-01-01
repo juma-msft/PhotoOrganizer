@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.UI.Xaml;
+﻿using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace PhotoTagLearner.Core
@@ -54,7 +49,7 @@ namespace PhotoTagLearner.Core
                 case "PART_PhotoView":
                     if (item is GridView)
                     {
-                        result = ResourceLookup.GenericXaml["PhotoViewDisplay_TopTagList"] as Style;
+                        result = ResourceLookup.GenericXaml["PhotoView_DefaultGridView"] as Style;
                     }
                     break;
                 case "PART_TagList":

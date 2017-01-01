@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,21 +9,40 @@ using Windows.Storage;
 
 namespace PhotoTagLearner.Core
 {
-    interface IPhotoStore
+    public interface IPhotoStore
     {
         void StartPopulation(IEnumerable<string> sourceList);
-        event TypedEventHandler<PhotoStore, string> SourcePopulationComplete;
+        IEnumerable<PhotoItem> GetItems(string tag);
+        IEnumerable<string> GetAvailableTags(string source);
+        event TypedEventHandler<IPhotoStore, string> SourcePopulationComplete;
     }
 
-    class PhotoStore : IPhotoStore
+    class DefaultPhotoStore : IPhotoStore
     {
-        public PhotoStore()
+        public DefaultPhotoStore()
         {
         }
 
+        public static IPhotoStore Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new DefaultPhotoStore();
+                }
+
+                return instance;
+            }
+        }
+
+        private static IPhotoStore instance;
+
         public void StartPopulation(IEnumerable<string> sourceList)
         {
+#pragma warning disable CS4014
             PopulateAsync(sourceList);
+#pragma warning restore CS4014
         }
 
         private IAsyncAction PopulateAsync(IEnumerable<string> sourceList)
@@ -39,27 +59,34 @@ namespace PhotoTagLearner.Core
                     }
                 });
             }).AsAsyncAction();
+        }
 
+        public IEnumerable<PhotoItem> GetItems(string tag)
+        {
+            return from photo in items
+                   select photo;
+        }
+
+        public IEnumerable<string> GetAvailableTags(string source)
+        {
+            return new string[] { "All" };
         }
 
         private async void PopulateFromPhotoPictureLibrary()
         {
-            var myPictures = await StorageLibrary.GetLibraryAsync(KnownLibraryId.Pictures);
-            var photoItems = new List<PhotoItem>();
+            var myPictures = await KnownFolders.PicturesLibrary.GetFilesAsync();
 
-            foreach (var folder in myPictures.Folders)
+            foreach (var image in myPictures)
             {
-                var items = await folder.GetItemsAsync();
-                foreach (var item in items)
-                {
-                    var photoItem = PhotoItem.CreateFromStorageItem(item);
-                    photoItems.Add(photoItem);
-                }
+                var photoItem = await PhotoItem.CreateFromStorageItem(image);
+                items.Add(photoItem);
             }
 
             SourcePopulationComplete?.Invoke(this, BuiltInPhotoItemSource.PictureLibrary);
         }
 
-        public event TypedEventHandler<PhotoStore, string> SourcePopulationComplete;
+        public event TypedEventHandler<IPhotoStore, string> SourcePopulationComplete;
+
+        private ConcurrentBag<PhotoItem> items = new ConcurrentBag<PhotoItem>();
     }
 }

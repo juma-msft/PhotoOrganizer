@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.Streams;
 
 namespace PhotoTagLearner.Core
 {
@@ -14,8 +15,16 @@ namespace PhotoTagLearner.Core
         public const string PictureLibrary = "PictureLibrary";
     }
 
-    class PhotoItem : INotifyPropertyChanged
+    public class PhotoItem : INotifyPropertyChanged
     {
+        public IRandomAccessStream ImageStream
+        {
+            get { return this.imageStream; }
+            set { if (this.imageStream != value) { this.imageStream = value; NotifyPropertyChanged(); } }
+        }
+
+        private IRandomAccessStream imageStream;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
@@ -23,9 +32,10 @@ namespace PhotoTagLearner.Core
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        internal static PhotoItem CreateFromStorageItem(IStorageItem item)
+        internal static async Task<PhotoItem> CreateFromStorageItem(StorageFile item)
         {
             PhotoItem result = new PhotoItem();
+            result.imageStream = await item.OpenReadAsync();
             return result;
         }
     }

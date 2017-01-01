@@ -42,7 +42,8 @@
                         <ListView Grid.Row="0" x:Name="PART_SourceList" />
                         <core:PhotoViewDisplay Grid.Row="1" x:Name="PART_PhotoViewDisplay"
                                                ControlDataTemplateSelector="{TemplateBinding ControlDataTemplateSelector}"
-                                               ControlStyleSelector="{TemplateBinding ControlStyleSelector}"/>
+                                               ControlStyleSelector="{TemplateBinding ControlStyleSelector}" 
+                                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
@@ -145,6 +146,7 @@
         <Setter Property="ScrollViewer.VerticalScrollMode" Value="Disabled" />
         <Setter Property="ScrollViewer.IsHorizontalScrollChainingEnabled" Value="True" />
         <Setter Property="ScrollViewer.IsVerticalScrollChainingEnabled" Value="False" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="ItemsPanel">
             <Setter.Value>
                 <ItemsPanelTemplate>
