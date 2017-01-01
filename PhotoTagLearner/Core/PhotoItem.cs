@@ -9,21 +9,13 @@ using Windows.Storage;
 
 namespace PhotoTagLearner.Core
 {
-    enum PhotoItemSource
+    class BuiltInPhotoItemSource
     {
-        PictureLibrary
+        public const string PictureLibrary = "PictureLibrary";
     }
 
     class PhotoItem : INotifyPropertyChanged
     {
-        public PhotoItemSource Source
-        {
-            get { return this.source; }
-            set { if (this.source != value) { this.source = value; NotifyPropertyChanged(); } }
-        }
-
-        private PhotoItemSource source;
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
@@ -31,11 +23,9 @@ namespace PhotoTagLearner.Core
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        internal static PhotoItem CreateFromStorageItem(PhotoItemSource source, IStorageItem item)
+        internal static PhotoItem CreateFromStorageItem(IStorageItem item)
         {
             PhotoItem result = new PhotoItem();
-            result.source = source;
-
             return result;
         }
     }

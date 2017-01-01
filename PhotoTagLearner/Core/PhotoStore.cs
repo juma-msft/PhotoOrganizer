@@ -8,26 +8,32 @@ using Windows.Storage;
 
 namespace PhotoTagLearner.Core
 {
-    class PhotoStore
+    interface IPhotoStore
+    {
+        void StartPopulation(IEnumerable<string> sourceList);
+        event TypedEventHandler<PhotoStore, string> SourcePopulationComplete;
+    }
+
+    class PhotoStore : IPhotoStore
     {
         public PhotoStore()
         {
         }
 
-        public void StartPopulation(IEnumerable<PhotoItemSource> sourceList)
+        public void StartPopulation(IEnumerable<string> sourceList)
         {
             PopulateAsync(sourceList);
         }
 
-        private IAsyncAction PopulateAsync(IEnumerable<PhotoItemSource> sourceList)
+        private IAsyncAction PopulateAsync(IEnumerable<string> sourceList)
         {
             return Task.Run(() =>
             {
                 Parallel.ForEach(sourceList, (source) =>
                 {
-                    switch(source)
+                    switch (source)
                     {
-                        case PhotoItemSource.PictureLibrary:
+                        case BuiltInPhotoItemSource.PictureLibrary:
                             PopulateFromPhotoPictureLibrary();
                             break;
                     }
@@ -46,14 +52,14 @@ namespace PhotoTagLearner.Core
                 var items = await folder.GetItemsAsync();
                 foreach (var item in items)
                 {
-                    var photoItem = PhotoItem.CreateFromStorageItem(PhotoItemSource.PictureLibrary, item);
+                    var photoItem = PhotoItem.CreateFromStorageItem(item);
                     photoItems.Add(photoItem);
                 }
             }
 
-            SourcePopulationComplete?.Invoke(this, PhotoItemSource.PictureLibrary);
+            SourcePopulationComplete?.Invoke(this, BuiltInPhotoItemSource.PictureLibrary);
         }
 
-        public event TypedEventHandler<PhotoStore, PhotoItemSource> SourcePopulationComplete;
+        public event TypedEventHandler<PhotoStore, string> SourcePopulationComplete;
     }
 }

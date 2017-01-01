@@ -48,24 +48,36 @@ namespace PhotoTagLearner.Core
             switch(item.Name)
             {
                 case "PART_PhotoViewContainer":
-                    result = (Style)ResourceLookup.GenericXaml["PhotoView_DefaultViewContainer"];
+                    result = ResourceLookup.GenericXaml["PhotoView_DefaultViewContainer"] as Style;
                     break;
                 case "PART_PhotoView":
                     if (item is GridView)
                     {
-                        result = (Style)ResourceLookup.GenericXaml["PhotoView_DefaultGridView"];
+                        result = ResourceLookup.GenericXaml["PhotoViewDisplay_TopTagList"] as Style;
                     }
                     break;
                 case "PART_TagList":
                     if (item is ListView)
                     {
-                        result = (Style)ResourceLookup.GenericXaml["PhotoView_DefaultHorizontalList"];
+                        result = ResourceLookup.GenericXaml["PhotoView_DefaultHorizontalList"] as Style;
                     }
                     break;
                 case "PART_SourceList":
                     if (item is ListView)
                     {
-                        result = (Style)ResourceLookup.GenericXaml["PhotoView_DefaultHorizontalList"];
+                        result = ResourceLookup.GenericXaml["PhotoView_DefaultHorizontalList"] as Style;
+                    }
+                    break;
+                case "PART_PhotoViewDisplay":
+                    if (item is PhotoViewDisplay)
+                    {
+                        var photoViewDisplay = item as PhotoViewDisplay;
+                        switch(photoViewDisplay.TagListLocation)
+                        {
+                            default:
+                                result = ResourceLookup.GenericXaml["PhotoViewDisplay_TopTagList"] as Style;
+                                break;
+                        }
                     }
                     break;
                 default:

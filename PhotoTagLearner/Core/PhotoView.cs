@@ -20,7 +20,7 @@ namespace PhotoTagLearner.Core
         }
 
         #region Dependency Properties
-        public StyleSelector StyleSelector
+        public StyleSelector ControlStyleSelector
         {
             get
             {
@@ -32,7 +32,7 @@ namespace PhotoTagLearner.Core
             }
         }
 
-        public static readonly DependencyProperty ControlStyleSelectorProperty = DependencyProperty.Register("StyleSelector", typeof(StyleSelector),
+        public static readonly DependencyProperty ControlStyleSelectorProperty = DependencyProperty.Register("ControlStyleSelector", typeof(StyleSelector),
             typeof(PhotoView), new PropertyMetadata(DefaultStyleSelector.Instance, new PropertyChangedCallback(OnStyleSelectorChanged)));
 
         private static void OnStyleSelectorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -44,7 +44,7 @@ namespace PhotoTagLearner.Core
             }
         }
 
-        public DataTemplateSelector DataTemplateSelector
+        public DataTemplateSelector ControlDataTemplateSelector
         {
             get
             {
@@ -56,7 +56,7 @@ namespace PhotoTagLearner.Core
             }
         }
 
-        private static void OnPhotoItemSelectorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnControlDataTemplateSelectorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             PhotoView pv = d as PhotoView;
             if ((pv != null) && (e.OldValue != e.NewValue))
@@ -67,7 +67,7 @@ namespace PhotoTagLearner.Core
         }
 
         public static readonly DependencyProperty ControlDataTemplateSelectorProperty = DependencyProperty.Register("ControlDataTemplateSelector", typeof(DataTemplateSelector),
-            typeof(PhotoView), new PropertyMetadata(DefaultPhotoItemTemplateSelector.Instance, new PropertyChangedCallback(OnPhotoItemSelectorChanged)));
+            typeof(PhotoView), new PropertyMetadata(DefaultPhotoItemTemplateSelector.Instance, new PropertyChangedCallback(OnControlDataTemplateSelectorChanged)));
 
         public object PhotoItemSources
         {
@@ -93,43 +93,35 @@ namespace PhotoTagLearner.Core
             }
         }
 
-        private static IEnumerable<PhotoItemSource> BuildDefaultPhotoItemSources()
+        private static IEnumerable<string> BuildDefaultPhotoItemSources()
         {
-            return new PhotoItemSource[] { PhotoItemSource.PictureLibrary };
+            return new string[] { BuiltInPhotoItemSource.PictureLibrary };
         }
 
         #endregion
 
         protected override void OnApplyTemplate()
         {
-            base.OnApplyTemplate();
-
-            var styleSelector = this.StyleSelector;
-            var container = GetTemplateChild("PART_PhotoViewContainer") as FrameworkElement;
+            var styleSelector = this.ControlStyleSelector;
+            container = GetTemplateChild("PART_PhotoViewContainer") as FrameworkElement;
             container.Style = styleSelector.SelectStyle(container, this);
 
-            var photoView = GetTemplateChild("PART_PhotoView") as ListViewBase;
-            photoView.Style = styleSelector.SelectStyle(photoView, this);
-
-            var tagList = GetTemplateChild("PART_TagList") as ListViewBase;
-            tagList.Style = styleSelector.SelectStyle(tagList, this);
-
-            var sourceList = GetTemplateChild("Part_SourceList") as ListViewBase;
+            sourceList = GetTemplateChild("PART_SourceList") as ListViewBase;
             sourceList.Style = styleSelector.SelectStyle(sourceList, this);
 
-            InitializeViewer(photoView);
+            displayView = GetTemplateChild("PART_PhotoViewDisplay") as PhotoViewDisplay;
+            displayView.Style = styleSelector.SelectStyle(displayView, this);
 
+            base.OnApplyTemplate();
         }
 
         private void InitializeViewer(ListViewBase view)
         {
-            view.ItemsSource = this.photos;
-            view.ItemTemplateSelector = this.PhotoItemTemplateSelector;
-            var sources = this.PhotoItemSources as IEnumerable<PhotoItemSource>;
+            var sources = this.PhotoItemSources as IEnumerable<string>;
             this.photoStore.StartPopulation(sources);
         }
 
-        private void OnPhotoStoreSourcePopulateComplete(PhotoStore sender, PhotoItemSource args)
+        private void OnPhotoStoreSourcePopulateComplete(PhotoStore sender, string args)
         {
             // The dispatch call is purposefully not awaited.
 
@@ -140,8 +132,9 @@ namespace PhotoTagLearner.Core
 #pragma warning restore CS4014
         }
 
-        private List<string> photoTags = new List<string>();
-        private List<PhotoItem> photos = new List<PhotoItem>();
         private PhotoStore photoStore = new PhotoStore();
+        private FrameworkElement container;
+        private ListViewBase sourceList;
+        private PhotoViewDisplay displayView;
     }
 }

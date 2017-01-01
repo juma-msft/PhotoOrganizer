@@ -7,7 +7,7 @@
         <ResourceDictionary Source="ControlThemes.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <Style TargetType="core:PhotoViewDisplay" >
+    <Style x:Key="PhotoViewDisplay_TopTagList" TargetType="core:PhotoViewDisplay">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="core:PhotoViewDisplay">
@@ -16,6 +16,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
+                        
                         <ListView Grid.Row="0" x:Name="PART_TagList" />
                         <GridView Grid.Row="1" x:Name="PART_PhotoView" />
                     </Grid>
@@ -24,7 +25,10 @@
         </Setter>
     </Style>
 
-    <Style TargetType="core:PhotoView">
+    <!-- Default PhotoViewDisplay template. -->
+    <Style TargetType="core:PhotoViewDisplay" BasedOn="{StaticResource PhotoViewDisplay_TopTagList}" />
+
+    <Style x:Key="PhotoView_Default" TargetType="core:PhotoView">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="core:PhotoView">
@@ -33,18 +37,20 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
+                        
                         <!-- Need to implement a tool bar -->
                         <ListView Grid.Row="0" x:Name="PART_SourceList" />
-                        <core:PhotoViewDisplay Grid.Row="1" x:Name="PART_PhotoViewDisplay" />
+                        <core:PhotoViewDisplay Grid.Row="1" x:Name="PART_PhotoViewDisplay"
+                                               ControlDataTemplateSelector="{TemplateBinding ControlDataTemplateSelector}"
+                                               ControlStyleSelector="{TemplateBinding ControlStyleSelector}"/>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <DataTemplate x:Key="PhotoItem_DefaultTemplate" x:DataType="core:PhotoItem">
-        
-    </DataTemplate>
+    <!-- Default PhotoView Template -->
+    <Style TargetType="core:PhotoView" BasedOn="{StaticResource PhotoView_Default}" />
 
     <Style x:Name="PhotoView_DefaultViewContainer" TargetType="Grid">
         <Setter Property="BorderBrush" Value="{ThemeResource PhotoViewContainerBorderBrush}" />
