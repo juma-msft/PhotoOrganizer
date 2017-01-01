@@ -33,10 +33,39 @@ namespace PhotoTagLearner.Core
             {
                 result = SelectPhotoViewStyles(item as FrameworkElement, container as PhotoView);
             }
+            else if (container is PhotoViewDisplay)
+            {
+                result = SelectPhotoViewDisplayStyles(item as FrameworkElement, container as PhotoViewDisplay);
+            }
 
             if (result == null)
             {
                 result = base.SelectStyleCore(item, container);
+            }
+
+            return result;
+        }
+
+        private Style SelectPhotoViewDisplayStyles(FrameworkElement item, PhotoViewDisplay container)
+        {
+            Style result = null;
+            switch (item.Name)
+            {
+                case "PART_PhotoView":
+                    if (item is GridView)
+                    {
+                        result = ResourceLookup.GenericXaml["PhotoViewDisplay_TopTagList"] as Style;
+                    }
+                    break;
+                case "PART_TagList":
+                    if (item is ListView)
+                    {
+                        result = ResourceLookup.GenericXaml["PhotoView_DefaultHorizontalList"] as Style;
+                    }
+                    break;
+                default:
+                    result = null;
+                    break;
             }
 
             return result;
@@ -49,18 +78,6 @@ namespace PhotoTagLearner.Core
             {
                 case "PART_PhotoViewContainer":
                     result = ResourceLookup.GenericXaml["PhotoView_DefaultViewContainer"] as Style;
-                    break;
-                case "PART_PhotoView":
-                    if (item is GridView)
-                    {
-                        result = ResourceLookup.GenericXaml["PhotoViewDisplay_TopTagList"] as Style;
-                    }
-                    break;
-                case "PART_TagList":
-                    if (item is ListView)
-                    {
-                        result = ResourceLookup.GenericXaml["PhotoView_DefaultHorizontalList"] as Style;
-                    }
                     break;
                 case "PART_SourceList":
                     if (item is ListView)
