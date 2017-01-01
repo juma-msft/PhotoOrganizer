@@ -1,0 +1,32 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PhotoTagLearner.Core">
+    
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="PhotoViewContainerBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="PhotoViewContainerBorderBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="PhotoViewDefaultHorizontalListBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="PhotoViewDefaultHorizontalListBorderBrush" Color="Transparent" />
+            <x:Double x:Key="PhotoViewContainerBorderThickness">0</x:Double>
+            <x:Double x:Key="PhotoViewDefaultHorizontalListBorderThickness">0</x:Double>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="PhotoViewContainerBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="PhotoViewContainerBorderBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="PhotoViewDefaultHorizontalListBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="PhotoViewDefaultHorizontalListBorderBrush" Color="Transparent" />
+            <x:Double x:Key="PhotoViewContainerBorderThickness">0</x:Double>
+            <x:Double x:Key="PhotoViewDefaultHorizontalListBorderThickness">0</x:Double>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="HighContrast">
+            <SolidColorBrush x:Key="PhotoViewContainerBackground" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="PhotoViewContainerBorderBrush" Color="{ThemeResource SystemColorHotlightColor}" />
+            <SolidColorBrush x:Key="PhotoViewDefaultHorizontalListBackground" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="PhotoViewDefaultHorizontalListBorderBrush" Color="{ThemeResource SystemColorHotlightColor}" />
+            <x:Double x:Key="PhotoViewContainerBorderThickness">3</x:Double>
+            <x:Double x:Key="PhotoViewDefaultHorizontalListBorderThickness">2</x:Double>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>
